@@ -1,6 +1,6 @@
 # Boring Campus Management System
 
-> **Note:** The `.db` file is directly pushed to git for demo purposes to ensure the application works immediately upon deployment. In a real production environment, database files is not be committed to version control.
+> **Note:** The `.db` file is directly pushed to git for demo purposes to ensure the application works immediately upon deployment. In a real production environment, database files isre not be committed to version control.
 
 A modern, responsive web application for managing Boring Campus's daily operations, student records, attendance, and communication.
 
