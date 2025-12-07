@@ -34,7 +34,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
         const transaction = db.transaction((records) => {
             for (const record of records) {
-                const existing = check.get(record.student_id, subject_id, date);
+                const existing = check.get(record.student_id, subject_id, date) as { id: number } | undefined;
                 if (existing) {
                     update.run(record.status, existing.id);
                 } else {
