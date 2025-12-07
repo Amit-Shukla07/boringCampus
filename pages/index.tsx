@@ -1,8 +1,43 @@
 
 import Head from 'next/head';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+    const [theme, setTheme] = useState<'light'|'dark'>('light');
+
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem('theme');
+            if (stored === 'dark') {
+                document.documentElement.classList.add('dark');
+                setTheme('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                setTheme('light');
+            }
+        } catch (e) {}
+    }, []);
+
+    const toggleTheme = () => {
+        try {
+            document.documentElement.classList.add('theme-transition');
+
+            if (theme === 'dark') {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                setTheme('light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                setTheme('dark');
+            }
+
+            window.setTimeout(() => {
+                document.documentElement.classList.remove('theme-transition');
+            }, 1620);
+        } catch (e) {}
+    };
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-page)' }}>
             <Head>
@@ -10,12 +45,23 @@ export default function Home() {
             </Head>
 
             {/* Navbar */}
-            <nav style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', borderBottom: '1px solid var(--slate-200)' }}>
+            <nav style={{ padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-surface)', borderBottom: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <div style={{ width: '40px', height: '40px', backgroundColor: 'var(--primary-100)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-600)' }}>
                         <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     </div>
                     <span style={{ fontWeight: 700, fontSize: '1.5rem', fontFamily: 'Outfit, sans-serif', color: 'var(--slate-800)' }}>Boring Campus</span>
+                </div>
+                <div className="top-right-toggle">
+                    <button
+                        role="switch"
+                        aria-checked={theme === 'dark'}
+                        aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                        className={`theme-switch ${theme === 'dark' ? 'on' : ''}`}
+                        onClick={toggleTheme}
+                    >
+                        <span className="thumb" aria-hidden="true" />
+                    </button>
                 </div>
             </nav>
 

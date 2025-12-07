@@ -42,6 +42,12 @@ export default class MyDocument extends Document<DocumentProps> {
     return (
       <Html lang="en" className="scroll-smooth">
         <Head>
+          {/* Apply theme class before paint to avoid FOUC */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var s=localStorage.getItem('theme');if(s==='dark'){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){} })();`,
+            }}
+          />
           {/* Favicon */}
           <link rel="icon" href="/favicon.ico" sizes="any" />
           <link rel="icon" href="/icon.svg" type="image/svg+xml" />

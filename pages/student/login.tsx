@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -8,6 +8,40 @@ export default function StudentLogin() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem('theme');
+            if (stored === 'dark') {
+                document.documentElement.classList.add('dark');
+                setTheme('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                setTheme('light');
+            }
+        } catch (e) {}
+    }, []);
+
+    const toggleTheme = () => {
+        try {
+            document.documentElement.classList.add('theme-transition');
+
+            if (theme === 'dark') {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                setTheme('light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                setTheme('dark');
+            }
+
+            window.setTimeout(() => {
+                document.documentElement.classList.remove('theme-transition');
+            }, 1620);
+        } catch (e) {}
+    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,6 +69,18 @@ export default function StudentLogin() {
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--slate-50)' }}>
+            {/* Top-right theme toggle for login page */}
+            <div className="top-right-toggle">
+                <button
+                    role="switch"
+                    aria-checked={theme === 'dark'}
+                    aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                    className={`theme-switch ${theme === 'dark' ? 'on' : ''}`}
+                    onClick={toggleTheme}
+                >
+                    <span className="thumb" aria-hidden="true" />
+                </button>
+            </div>
             <Head>
                 <title>Student Login - Boring Campus</title>
             </Head>

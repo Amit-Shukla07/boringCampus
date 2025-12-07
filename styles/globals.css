@@ -47,6 +47,40 @@
   --shadow-focus: 0 0 0 4px var(--primary-100);
 }
 
+/* Dark theme variables — applied when `.dark` is present on <html> */
+:root.dark {
+  --bg-page: #0b1220;
+  --bg-surface: #0f1724;
+  --text-primary: #e6eef8;
+  --text-secondary: #94a3b8;
+  --border-color: #1f2a37;
+
+  --primary-50: #0b1b39;
+  --primary-100: #072243;
+  --primary-500: #60a5fa;
+  --primary-600: #3b82f6;
+  --primary-700: #2563eb;
+
+  --slate-50: #071022;
+  --slate-100: #0b1320;
+  --slate-200: #0f1724;
+  --slate-300: #1f2a37;
+  --slate-400: #2b3946;
+  --slate-500: #94a3b8;
+  --slate-600: #cbd5e1;
+  --slate-700: #e2e8f0;
+  --slate-800: #f1f5f9;
+  --slate-900: #ffffff;
+
+  --shadow-sm: 0 1px 2px 0 rgb(2 6 23 / 0.6);
+  --shadow-md: 0 6px 12px -4px rgb(2 6 23 / 0.6);
+  --shadow-lg: 0 10px 20px -6px rgb(2 6 23 / 0.6);
+  --shadow-xl: 0 20px 30px -10px rgb(2 6 23 / 0.6);
+  --shadow-focus: 0 0 0 4px rgba(59,130,246,0.12);
+}
+
+/* System preference-based auto dark is disabled to ensure default is light unless user chooses otherwise. */
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -337,4 +371,203 @@ tr:hover td {
 
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Sidebar / Layout styles */
+.sidebar {
+  width: 260px;
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 50;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar .brand {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 73px;
+}
+
+.sidebar .brand .logo {
+  width: 32px;
+  height: 32px;
+  background-color: var(--primary-100);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-600);
+  flex-shrink: 0;
+}
+
+.sidebar nav {
+  flex: 1;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  background: transparent;
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background: rgba(0,0,0,0.03);
+  color: var(--text-primary);
+}
+
+.nav-link.active {
+  color: var(--primary-700);
+  background: var(--primary-50);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-link svg { color: inherit; }
+
+.sidebar-logout {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.sidebar-logout button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--error-color);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  font-weight: 500;
+}
+
+.sidebar-logout button:hover { background-color: rgba(254,226,226,0.08); }
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  transition: margin-left 0.3s ease;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.header-actions { display:flex; align-items:center; gap:0.5rem }
+
+.theme-toggle { background: transparent; border: none; cursor: pointer; padding:6px; border-radius:8px }
+
+/* Top-right theme switch */
+.top-right-toggle {
+  position: fixed;
+  top: 12px;
+  right: 18px;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+}
+
+.theme-switch {
+  --switch-width: 72px;
+  --switch-height: 40px;
+  --thumb-size: 32px;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  border-radius: calc(var(--switch-height) / 2);
+  padding: 4px;
+  display: inline-block;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  cursor: pointer;
+  transition: background 1200ms cubic-bezier(.2,.8,.2,1), border-color 1200ms cubic-bezier(.2,.8,.2,1), box-shadow 1200ms cubic-bezier(.2,.8,.2,1);
+}
+
+.theme-switch .thumb {
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 50%;
+  background: var(--text-primary);
+  display: block;
+  transform: translateX(0);
+  transition: transform 1400ms cubic-bezier(.2,.8,.2,1), background 1200ms ease, box-shadow 1200ms ease;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.4);
+}
+
+.theme-switch.on {
+  background: linear-gradient(180deg,var(--primary-600),var(--primary-700));
+  border-color: transparent;
+}
+
+.theme-switch.on .thumb {
+  transform: translateX(calc(var(--switch-width) - var(--thumb-size) - 8px));
+  background: #fff;
+}
+
+/* Small label next to the switch for clarity (visually subtle) */
+.theme-label {
+  margin-left: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Smooth theme transitions */
+:root,
+html,
+body {
+  transition: background-color 700ms cubic-bezier(.2,.8,.2,1), color 700ms cubic-bezier(.2,.8,.2,1);
+}
+
+.sidebar,
+.main-content,
+.card,
+.nav-link,
+.btn,
+.input-field {
+  transition: background-color 700ms cubic-bezier(.2,.8,.2,1), color 700ms cubic-bezier(.2,.8,.2,1), border-color 700ms cubic-bezier(.2,.8,.2,1), box-shadow 700ms cubic-bezier(.2,.8,.2,1);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  :root, html, body, .sidebar, .main-content, .card, .nav-link, .btn, .input-field {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* When we want an extra-smooth, longer transition (applied temporarily via JS) */
+html.theme-transition :root,
+html.theme-transition,
+html.theme-transition body,
+html.theme-transition .sidebar,
+html.theme-transition .main-content,
+html.theme-transition .card,
+html.theme-transition .nav-link,
+html.theme-transition .btn,
+html.theme-transition .input-field {
+  transition-duration: 1600ms !important;
+  transition-timing-function: cubic-bezier(.2,.8,.2,1) !important;
 }

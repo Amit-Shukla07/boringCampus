@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -11,6 +11,47 @@ interface LayoutProps {
 export default function Layout({ children, role }: LayoutProps) {
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        // Initialize theme from localStorage only — default to light
+        try {
+            const stored = localStorage.getItem('theme');
+            if (stored === 'dark') {
+                document.documentElement.classList.add('dark');
+                setTheme('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                setTheme('light');
+            }
+        } catch (e) {
+            // ignore (SSR or privacy settings)
+        }
+    }, []);
+
+    const toggleTheme = () => {
+        try {
+            // add temporary class to enable longer transitions
+            document.documentElement.classList.add('theme-transition');
+
+            if (theme === 'dark') {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                setTheme('light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                setTheme('dark');
+            }
+
+            // remove the transition helper after the animation finishes
+            window.setTimeout(() => {
+                document.documentElement.classList.remove('theme-transition');
+            }, 1620);
+        } catch (e) {
+            // ignore localStorage errors
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -38,40 +79,33 @@ export default function Layout({ children, role }: LayoutProps) {
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--bg-page)' }}>
+            {/* Top-right theme toggle (fixed) */}
+            <div className="top-right-toggle">
+                <button
+                    role="switch"
+                    aria-checked={theme === 'dark'}
+                    aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                    className={`theme-switch ${theme === 'dark' ? 'on' : ''}`}
+                    onClick={toggleTheme}
+                >
+                    <span className="thumb" aria-hidden="true" />
+                </button>
+            </div>
             {/* Sidebar */}
-            <aside style={{
-                width: isSidebarOpen ? '260px' : '80px',
-                backgroundColor: 'white',
-                borderRight: '1px solid var(--slate-200)',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'width 0.3s ease',
-                position: 'fixed',
-                height: '100vh',
-                zIndex: 50
-            }}>
-                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--slate-200)', display: 'flex', alignItems: 'center', gap: '0.75rem', height: '73px' }}>
-                    <div style={{ width: '32px', height: '32px', backgroundColor: 'var(--primary-100)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-600)', flexShrink: 0 }}>
+            <aside className={`sidebar ${isSidebarOpen ? '' : 'collapsed'}`}>
+                <div className="brand">
+                    <div className="logo">
                         <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     </div>
-                    {isSidebarOpen && <span style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'Outfit, sans-serif', color: 'var(--slate-800)', whiteSpace: 'nowrap', overflow: 'hidden' }}>BoringCampus</span>}
+                    {isSidebarOpen && <span style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden' }}>BoringCampus</span>}
+
+                    {/* header-actions removed: theme toggle is fixed at top-right to avoid duplication */}
                 </div>
 
-                <nav style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <nav>
                     {links.map((link) => (
-                        <Link key={link.href} href={link.href} style={{ textDecoration: 'none' }}>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.75rem',
-                                padding: '0.75rem 1rem',
-                                borderRadius: 'var(--radius-md)',
-                                color: router.pathname === link.href ? 'var(--primary-700)' : 'var(--slate-600)',
-                                backgroundColor: router.pathname === link.href ? 'var(--primary-50)' : 'transparent',
-                                transition: 'all 0.2s',
-                                cursor: 'pointer',
-                                fontWeight: 500
-                            }}>
+                        <Link key={link.href} href={link.href}>
+                            <div className={`nav-link ${router.pathname === link.href ? 'active' : ''}`}>
                                 <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" d={link.icon} />
                                 </svg>
@@ -81,27 +115,8 @@ export default function Layout({ children, role }: LayoutProps) {
                     ))}
                 </nav>
 
-                <div style={{ padding: '1rem', borderTop: '1px solid var(--slate-200)' }}>
-                    <button
-                        onClick={handleLogout}
-                        style={{
-                            width: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.75rem',
-                            padding: '0.75rem 1rem',
-                            borderRadius: 'var(--radius-md)',
-                            color: 'var(--error-color)',
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            transition: 'background-color 0.2s',
-                            fontWeight: 500,
-                            fontFamily: 'Inter, sans-serif'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
+                <div className="sidebar-logout">
+                    <button onClick={handleLogout}>
                         <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                         {isSidebarOpen && <span>Logout</span>}
                     </button>
@@ -109,13 +124,8 @@ export default function Layout({ children, role }: LayoutProps) {
             </aside>
 
             {/* Main Content */}
-            <main style={{
-                flex: 1,
-                marginLeft: isSidebarOpen ? '260px' : '80px',
-                padding: '2rem',
-                transition: 'margin-left 0.3s ease',
-                maxWidth: '1200px',
-                width: '100%'
+            <main className="main-content" style={{
+                marginLeft: isSidebarOpen ? '260px' : '80px'
             }}>
                 {children}
             </main>
